@@ -18,12 +18,12 @@ public class FilmeController: ControllerBase
     private static int id = 0;
 
     [HttpPost] // Requisição POST
-    public void AdicionaFilme([FromBody] Filme filme)
+    public IActionResult AdicionaFilme([FromBody] Filme filme)
     {
         filme.Id = id++;
         filmes.Add(filme);
-        Console.WriteLine(filme.Titulo);
-        Console.WriteLine(filme.Duracao);
+        return CreatedAtAction(nameof(RecuperaFilmePorId), new { id = filme.Id }, filme); // retorna o objeto cadastrado na lista
+        // A funcção acima basicamente, chama a função/endpoint RecuperarFilmePorId
     }
 
 
@@ -37,14 +37,22 @@ public class FilmeController: ControllerBase
      */
 
     [HttpGet] // Requisição GET
-    public IEnumerable<Filme> RecuperaFilme()
+    public IEnumerable<Filme> RecuperaFilme([FromQuery]int skip = 0, [FromQuery] int take = 10)
     {
-        return filmes;
+        /*  Método de Paginação */
+        // FromQuery = RequestParam
+        return filmes.Skip(skip).Take(take);
+        // Skip = pula a quantidade informada na lista
+        // Take = A quantidade que sera mostrada apos o skip
     }
 
     [HttpGet("{id}")] // Requisição GET que recebe uma queryParam
-    public Filme? RecuperaFilmePorId(int id)
+    public IActionResult RecuperaFilmePorId(int id)
     {
-        return filmes.FirstOrDefault(filme => filme.Id == id);
+        var filme = filmes.FirstOrDefault(filme => filme.Id == id);
+
+        if (filme == null) return NotFound();
+
+        return Ok(filme);
     }
 }
