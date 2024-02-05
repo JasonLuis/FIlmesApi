@@ -1,4 +1,8 @@
-﻿using FIlmesApi.Models;
+﻿using AutoMapper;
+using FIlmesApi.Data;
+using FIlmesApi.Data.Dtos;
+using FIlmesApi.Models;
+using Microsoft.AspNetCore.JsonPatch;
 using Microsoft.AspNetCore.Mvc;
 
 namespace FIlmesApi.Controllers;
@@ -13,15 +17,21 @@ namespace FIlmesApi.Controllers;
 [Route("[controller]")]
 public class FilmeController: ControllerBase
 {
-
-    private static List<Filme> filmes = new List<Filme>();
-    private static int id = 0;
+    private FilmeContext _context;
+    private IMapper _mapper;
+    
+    public FilmeController(FilmeContext context, IMapper mapper)
+    {
+        _context = context;
+        _mapper = mapper;
+    }
 
     [HttpPost] // Requisição POST
-    public IActionResult AdicionaFilme([FromBody] Filme filme)
+    public IActionResult AdicionaFilme([FromBody] CreateFilmeDto filmeDto)
     {
-        filme.Id = id++;
-        filmes.Add(filme);
+        Filme filme = _mapper.Map<Filme>(filmeDto);
+        _context.Filmes.Add(filme);
+        _context.SaveChanges();
         return CreatedAtAction(nameof(RecuperaFilmePorId), new { id = filme.Id }, filme); // retorna o objeto cadastrado na lista
         // A funcção acima basicamente, chama a função/endpoint RecuperarFilmePorId
     }
@@ -36,12 +46,21 @@ public class FilmeController: ControllerBase
          para o próximo elemento e Current para obter o elemento atual da iteração.
      */
 
+    /// <summary>
+    /// Adiciona um filme ao banco de dados
+    /// </summary>
+    /// <param name="filmeDto">Objeto com os campos necessários para criação de um filme </param>
+    /// <returns>IActionResul</returns>
+    /// <response code="201">Caso inserção seja feita com sucesso </response>
     [HttpGet] // Requisição GET
-    public IEnumerable<Filme> RecuperaFilme([FromQuery]int skip = 0, [FromQuery] int take = 10)
+    [ProducesResponseType(StatusCodes.Status201Created)]
+    public IEnumerable<ReadFilmeDto> RecuperaFilme([FromQuery]int skip = 0, [FromQuery] int take = 10)
     {
         /*  Método de Paginação */
         // FromQuery = RequestParam
-        return filmes.Skip(skip).Take(take);
+
+        return _mapper.Map<List<ReadFilmeDto>>(_context.Filmes.Skip(skip).Take(take));
+        // return _context.Filmes.Skip(skip).Take(take);
         // Skip = pula a quantidade informada na lista
         // Take = A quantidade que sera mostrada apos o skip
     }
@@ -49,10 +68,53 @@ public class FilmeController: ControllerBase
     [HttpGet("{id}")] // Requisição GET que recebe uma queryParam
     public IActionResult RecuperaFilmePorId(int id)
     {
-        var filme = filmes.FirstOrDefault(filme => filme.Id == id);
+        var filme = _context.Filmes.FirstOrDefault(filme => filme.Id == id);
 
         if (filme == null) return NotFound();
+        var filmeDto = _mapper.Map<ReadFilmeDto>(filme);
+        return Ok(filmeDto);
+    }
 
-        return Ok(filme);
+    [HttpPut("{id}")]
+    public IActionResult AtualizaFilme(int id,
+        [FromBody] UpdateFilmeDto filmeDto)
+    {
+        var filme = _context.Filmes.FirstOrDefault(filme => filme.Id == id);
+        if (filme == null) return NotFound();
+        _mapper.Map(filmeDto, filme);
+        _context.SaveChanges();
+        return NoContent();
+    }
+
+    [HttpPatch("{id}")]
+    public IActionResult AtualizaFilmeParcial(int id, 
+        JsonPatchDocument<UpdateFilmeDto> patch)
+    {
+        var filme = _context.Filmes.FirstOrDefault(filme => filme.Id == id);
+        
+        if (filme == null) return NotFound();
+        
+        var filmeParaAtualizar = _mapper.Map<UpdateFilmeDto>(filme);
+
+        patch.ApplyTo(filmeParaAtualizar, ModelState);
+
+        if(!TryValidateModel(filmeParaAtualizar))
+        {
+            return ValidationProblem(ModelState);
+        }
+        _mapper.Map(filmeParaAtualizar, filme);
+        _context.SaveChanges();
+        return NoContent();
+    }
+
+    [HttpDelete("{id}")]
+    public IActionResult DeletaFilme(int id)
+    {
+        var filme = _context.Filmes.FirstOrDefault(
+            filme => filme.Id == id);
+        if (filme == null) return NotFound();
+        _context.Remove(filme);
+        _context.SaveChanges();
+        return NoContent();
     }
 }

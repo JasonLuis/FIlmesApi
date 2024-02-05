@@ -1,0 +1,37 @@
+Instalar o Pacote EntityFramework no .NET 6.0
+
+1 - Ir em Ferramentas, Gerenciar Pacotes do NuGet, Gerenciar Pacotes do NuGet para solução;
+
+2 - Procurar por "Entity", selecionar a "Microsoft.EntityFrameworkCore" e instalar;
+
+3 - Apos a instalação, procurar por "Microsoft.EntityFrameworkCore.Tools" e instalar;
+
+4 - Instalar os pacotes sempre com a mesma versão;
+
+5 - Procurar por Mysql e instalar a biblioteca Pomelo;
+
+Gerar Migrations
+
+1 - Ir em Ferramentas, Gerenciar Pacotes do NuGet, Console do Gerenciador de Pacotes;
+
+2 - No console que vai abrir no canto inferior, digitar o comando "Add-Migration 'nome_da_migration'";
+
+3 - Sera gerado uma pasta 'Migrations' no projeto;
+
+4 - Logo apos, digitar no console o comando 'Update-Database';
+
+5 - Sera gerado a(s) tabela(s) no banco de dados;
+
+AutoMapper 
+
+1 - Ir em Ferramentas, Gerenciar Pacotes do NuGet, Console do Gerenciador de Pacotes;	
+
+2 - Procurar por "Mapper", selecionar a "AutoMapper" e instalar;
+
+3 - Instalar tambem o pacote AutoMapper.Extensions.Microsoft.DependencyInjection;
+
+Para realizar o manuseio de JSON - Microsoft.AspNetCore.Mvc.NewtonsoftJson
+
+1 - Ir em Ferramentas, Gerenciar Pacotes do NuGet, Console do Gerenciador de Pacotes;	
+
+2 - Procurar por "Newtonsoft", selecionar "Microsoft.AspNetCore.Mvc.NewtonsoftJson" e instalar;
