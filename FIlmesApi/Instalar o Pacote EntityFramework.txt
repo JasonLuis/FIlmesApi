@@ -35,3 +35,10 @@ Para realizar o manuseio de JSON - Microsoft.AspNetCore.Mvc.NewtonsoftJson
 1 - Ir em Ferramentas, Gerenciar Pacotes do NuGet, Console do Gerenciador de Pacotes;	
 
 2 - Procurar por "Newtonsoft", selecionar "Microsoft.AspNetCore.Mvc.NewtonsoftJson" e instalar;
+
+
+
+/**Comandos**/
+Add-Migration "nome da migration" -> Cria uma migration de acordo com a estrutura da modelagem
+Update-Database -> Atualiza o Banco de dados atraves das migrations
+Remove-Migration -> exclui a ultima migration

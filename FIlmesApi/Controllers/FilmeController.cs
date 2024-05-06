@@ -59,7 +59,7 @@ public class FilmeController: ControllerBase
         /*  Método de Paginação */
         // FromQuery = RequestParam
 
-        return _mapper.Map<List<ReadFilmeDto>>(_context.Filmes.Skip(skip).Take(take));
+        return _mapper.Map<List<ReadFilmeDto>>(_context.Filmes.Skip(skip).Take(take).ToList());
         // return _context.Filmes.Skip(skip).Take(take);
         // Skip = pula a quantidade informada na lista
         // Take = A quantidade que sera mostrada apos o skip
