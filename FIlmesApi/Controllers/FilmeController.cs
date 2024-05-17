@@ -54,15 +54,31 @@ public class FilmeController: ControllerBase
     /// <response code="201">Caso inserção seja feita com sucesso </response>
     [HttpGet] // Requisição GET
     [ProducesResponseType(StatusCodes.Status201Created)]
-    public IEnumerable<ReadFilmeDto> RecuperaFilme([FromQuery]int skip = 0, [FromQuery] int take = 10)
+    public IEnumerable<ReadFilmeDto> RecuperaFilme(
+        [FromQuery]int skip = 0,
+        [FromQuery] int take = 10,
+        [FromQuery] string? nomeCinema = null)
     {
-        /*  Método de Paginação */
-        // FromQuery = RequestParam
+        
 
-        return _mapper.Map<List<ReadFilmeDto>>(_context.Filmes.Skip(skip).Take(take).ToList());
-        // return _context.Filmes.Skip(skip).Take(take);
-        // Skip = pula a quantidade informada na lista
-        // Take = A quantidade que sera mostrada apos o skip
+        if(nomeCinema == null)
+        {
+            /*  Método de Paginação */
+            // FromQuery = RequestParam
+            return _mapper.Map<List<ReadFilmeDto>>(_context.Filmes.Skip(skip).Take(take).ToList());
+            // return _context.Filmes.Skip(skip).Take(take);
+            // Skip = pula a quantidade informada na lista
+            // Take = A quantidade que sera mostrada apos o skip
+        }
+
+        return _mapper
+            .Map<List<ReadFilmeDto>>
+            (_context
+            .Filmes
+            .Skip(skip)
+            .Take(take)
+            .Where(filme =>
+                filme.Sessoes.Any(sessao => sessao.Cinema.Nome == nomeCinema)).ToList());
     }
 
     [HttpGet("{id}")] // Requisição GET que recebe uma queryParam
